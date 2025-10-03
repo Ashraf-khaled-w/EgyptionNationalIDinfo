@@ -159,13 +159,18 @@
         infoItem.className = "info-item";
 
         // Format the message
-        if (message.includes("===")) {
+        if (typeof message !== "string") {
+          // Fallback for non-string logs
+          infoItem.textContent = String(message);
+        } else if (message.includes("===")) {
           // This is a section header, skip it
           return;
-        }
-
-        if (message.includes(":")) {
-          const [label, value] = message.split(":");
+        } else if (message.includes(":")) {
+          // Split only at the first colon so values that contain colons
+          // (for example: "Governorate: Dakahlia (code: 12)") are kept intact.
+          const idx = message.indexOf(":");
+          const label = message.slice(0, idx).trim();
+          const value = message.slice(idx + 1).trim();
           infoItem.innerHTML = `<span class="info-label">${label}:</span> ${value}`;
         } else {
           infoItem.textContent = message;
@@ -173,7 +178,7 @@
 
         // Determine which section to append to
         if (
-          message.includes("birth") ||
+          message.toLowerCase().includes("birth") ||
           message.includes("Year") ||
           message.includes("Month") ||
           message.includes("Day")
